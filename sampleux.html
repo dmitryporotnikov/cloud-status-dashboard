@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Global Cloud Status | Obsidian Cloud</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#031d4b",
+              "inverse-surface": "#faf8ff",
+              "on-primary-container": "#97d8ff",
+              "outline": "#5b74b1",
+              "surface-container-highest": "#00225a",
+              "on-tertiary-fixed-variant": "#563400",
+              "primary-fixed": "#c4e7ff",
+              "on-error": "#490106",
+              "error-container": "#7f2927",
+              "on-tertiary-fixed": "#2a1700",
+              "on-surface": "#dee5ff",
+              "surface-container": "#05183c",
+              "secondary": "#8f9fb7",
+              "on-error-container": "#ff9993",
+              "secondary-dim": "#8f9fb7",
+              "surface-bright": "#002867",
+              "surface-dim": "#060e20",
+              "surface-container-low": "#06122d",
+              "on-secondary": "#102134",
+              "tertiary-container": "#f8a010",
+              "surface": "#060e20",
+              "background": "#060e20",
+              "on-primary": "#004560",
+              "on-surface-variant": "#91aaeb",
+              "on-tertiary": "#573500",
+              "tertiary-dim": "#e79400",
+              "secondary-fixed-dim": "#c5d6f0",
+              "secondary-container": "#2d3c51",
+              "on-background": "#dee5ff",
+              "inverse-on-surface": "#4d556b",
+              "surface-container-lowest": "#000000",
+              "on-secondary-fixed-variant": "#4d5d73",
+              "on-secondary-fixed": "#314055",
+              "primary-fixed-dim": "#a2dcff",
+              "error-dim": "#bb5551",
+              "outline-variant": "#2b4680",
+              "secondary-fixed": "#d3e4fe",
+              "surface-variant": "#00225a",
+              "tertiary-fixed": "#f8a010",
+              "tertiary": "#ffb148",
+              "primary": "#7bd0ff",
+              "primary-dim": "#47c4ff",
+              "on-primary-fixed-variant": "#006286",
+              "on-tertiary-container": "#4a2c00",
+              "primary-container": "#004c69",
+              "inverse-primary": "#00668b",
+              "error": "#ee7d77",
+              "on-primary-fixed": "#00445e",
+              "tertiary-fixed-dim": "#e79400",
+              "on-secondary-container": "#b0c0da",
+              "surface-tint": "#7bd0ff"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #060e20; color: #dee5ff; }
+        .font-headline { font-family: 'Space Grotesk', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+        /* Spec status colors */
+        .status-operational { color: #4ade80; } /* green */
+        .status-degraded { color: #facc15; }     /* yellow/amber */
+        .status-outage { color: #f87171; }       /* red */
+        .status-maintenance { color: #60a5fa; }  /* blue */
+        .status-unknown { color: #9ca3af; }      /* gray */
+    </style>
+</head>
+<body class="overflow-x-hidden">
+<!-- Sidebar Navigation (Collapsed Minimal State) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col z-40 bg-[#06122d] border-r border-[#2b4680]/15 w-20 items-center py-4 shadow-[40px_0_40px_-20px_rgba(3,29,75,0.4)]">
+<div class="mb-10 text-sky-400">
+<span class="material-symbols-outlined text-3xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">cloud_done</span>
+</div>
+<nav class="flex flex-col gap-6 items-center flex-1">
+<a class="bg-sky-500/10 text-sky-400 rounded-lg p-3 hover:translate-x-1 duration-200" href="#" title="Dashboard">
+<span class="material-symbols-outlined">dashboard</span>
+</a>
+<a class="text-[#dee5ff]/40 p-3 hover:text-[#dee5ff] hover:bg-[#031d4b] transition-colors hover:translate-x-1 duration-200" href="#" title="Infrastructure">
+<span class="material-symbols-outlined">dns</span>
+</a>
+<a class="text-[#dee5ff]/40 p-3 hover:text-[#dee5ff] hover:bg-[#031d4b] transition-colors hover:translate-x-1 duration-200" href="#" title="Security">
+<span class="material-symbols-outlined">security</span>
+</a>
+<a class="text-[#dee5ff]/40 p-3 hover:text-[#dee5ff] hover:bg-[#031d4b] transition-colors hover:translate-x-1 duration-200" href="#" title="Automation">
+<span class="material-symbols-outlined">memory</span>
+</a>
+<a class="text-[#dee5ff]/40 p-3 hover:text-[#dee5ff] hover:bg-[#031d4b] transition-colors hover:translate-x-1 duration-200" href="#" title="Storage">
+<span class="material-symbols-outlined">storage</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-4 items-center pb-4">
+<button class="text-[#dee5ff]/40 hover:text-[#dee5ff] transition-colors">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+<button class="text-[#dee5ff]/40 hover:text-[#dee5ff] transition-colors">
+<span class="material-symbols-outlined">contact_support</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-20 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center px-8 w-full h-16 bg-gradient-to-b from-[#06122d] to-transparent sticky top-0 z-30">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#dee5ff] uppercase font-headline">METRIC_ARCHITECT</span>
+<nav class="hidden lg:flex gap-6 font-headline tracking-tight text-sm">
+<a class="text-sky-400 border-b-2 border-sky-500 pb-1" href="#">Clusters</a>
+<a class="text-[#dee5ff]/60 hover:text-[#dee5ff] transition-colors" href="#">Nodes</a>
+<a class="text-[#dee5ff]/60 hover:text-[#dee5ff] transition-colors" href="#">Logs</a>
+<a class="text-[#dee5ff]/60 hover:text-[#dee5ff] transition-colors" href="#">Alerts</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative group">
+<span class="absolute inset-y-0 left-3 flex items-center text-on-surface-variant/50">
+<span class="material-symbols-outlined text-sm">search</span>
+</span>
+<input class="bg-surface-container-lowest border-none rounded-md py-1.5 pl-9 pr-4 text-xs w-64 focus:ring-1 focus:ring-primary/40 transition-all outline-none" placeholder="Global Search..." type="text"/>
+</div>
+<button class="text-[#dee5ff]/60 hover:text-[#dee5ff] transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">notifications_active</span>
+</button>
+<button class="text-[#dee5ff]/60 hover:text-[#dee5ff] transition-all duration-200 active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/30">
+<img alt="Operator Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSTWkoHN4WipTNso8kucV5Lqs1POAXsm2poMQtlZVIiDt6ksLLmwhmAKKum-aiokPCA5UPwSSdf5rtGx8-FMzksRFoWVeZG7ME0oZLNyJZvAvQPtGwnjiUt8JEwSL6nhE3ui90F-7EIpKqr2MJb3LyVy0F--kkOfTUJJhgByP0i0SJNKBk_e2HmssZWKY7ELKB4Q7mHVJqfdV9XSwmE7DmgaE_1SPsbqUvOYpUadcCkwoaWYlKACbTKchqtEA1jX3KFhVy8a9CM7s"/>
+</div>
+</div>
+</header>
+<section class="p-8 space-y-8">
+<!-- Header Section per Spec -->
+<div class="flex flex-col md:flex-row justify-between items-end gap-6 border-b border-outline-variant/10 pb-8">
+<div class="space-y-1">
+<h1 class="text-4xl font-headline font-bold text-on-surface">Global Cloud Status</h1>
+<p class="text-on-surface-variant max-w-2xl text-sm">Aggregated health metrics and real-time operational status for major global cloud infrastructure providers.</p>
+</div>
+<div class="flex flex-col items-end gap-2">
+<div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-on-surface-variant/60 font-bold bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant/10">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                        Last refreshed: <span class="text-on-surface ml-1">2023-10-27T14:22:18Z</span>
+</div>
+</div>
+</div>
+<!-- Provider Aggregator Grid -->
+<div class="surface-container rounded-xl overflow-hidden">
+<!-- List Header & Filters -->
+<div class="px-8 py-6 flex flex-col md:flex-row justify-between items-center gap-6 border-b border-outline-variant/10">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">hub</span>
+<h3 class="font-headline font-semibold text-lg">Active Provider Feed</h3>
+</div>
+<div class="relative w-full md:w-96">
+<span class="absolute inset-y-0 left-4 flex items-center text-on-surface-variant/40">
+<span class="material-symbols-outlined text-lg">filter_alt</span>
+</span>
+<input class="w-full bg-surface-container-low border border-outline-variant/10 rounded-full py-2.5 pl-12 pr-4 text-sm focus:border-primary/40 focus:ring-0 outline-none transition-all placeholder:text-on-surface-variant/30" placeholder="Filter providers (AWS, Azure...)" type="text"/>
+</div>
+</div>
+<!-- Provider List Items -->
+<div class="p-4 space-y-1">
+<!-- Column Labels -->
+<div class="grid grid-cols-12 px-6 py-2 text-[10px] uppercase tracking-widest text-on-surface-variant/50 font-bold">
+<div class="col-span-4">Provider Identity</div>
+<div class="col-span-2 text-center">Status</div>
+<div class="col-span-5 px-8">Summary Description</div>
+<div class="col-span-1 text-right">Link</div>
+</div>
+<!-- 1. AWS -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-[#232f3e] flex items-center justify-center p-2">
+<img alt="AWS" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEqBJ1-Qq-S6-kgpjCuUhCtZp8ip19agzvdy_R2tw_JFO_WIfsDTTLOwdR1NTHYa9WgpylhoN_red_gIJx_rPK8FukozHnWR_SpGPB2u8PazX7hPDkMbgroGVmDLKlTGUsEsNTlvRda5X9Q0lXjzRON1RNUWuFUryW9Pim6OmjZKvJuiJtawriaTSUS6iY74KN5lh5HMYuVknXYJPxk2udSvozxn0DugsQHCnpB6OUtqsnNuUoySu9Uty9KjeKamYb5rexH1l6SRc"/>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">Amazon Web Services</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">Global Cloud Infrastructure</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Operational
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">All systems operational across all regions.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://status.aws.amazon.com/" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 2. Microsoft Azure -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-[#0078d4]/10 flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-sky-500">grid_view</span>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">Microsoft Azure</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">Enterprise Cloud Solutions</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Operational
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">No active incidents reported at this time.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://azure.status.microsoft/en-us/status" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 3. GCP -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-white/5 flex items-center justify-center p-2">
+<img alt="GCP" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5keuJQIIjOANsmqk2HH_nBx9nlDJAcmluuYlX3GPcOUWRvSml421SJ3BxpUQLDFNfX-j5O8DiwgEPbcklZLim9q8AG5MKOW_VctpDH58dvM3NrRberdO9jIEfKXPYINI2n03BJPj71BbI3oM7hjT89OsGg3oSRBEIdPWPMZC6zRv4yVXxDlZ25VIKQM7V1az2qZaOhgqX9Jy4Dzxsi3e6P52BAVlkULOF8RcHlSpZA9jU7UOtvwqNjjPDuB1gXJYVDTntKtD6B9M"/>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">Google Cloud Platform</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">Scalable Cloud Services</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-yellow-500/10 text-yellow-400 text-[10px] font-bold rounded-full border border-yellow-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+                                Degraded
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">Latency observed in networking services in APAC region.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://status.cloud.google.com/" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 4. IBM Cloud -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-white/5 flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-blue-400">cloud_queue</span>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">IBM Cloud</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">Hybrid Cloud &amp; AI</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Operational
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">Services are currently reporting no issues.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://cloud.ibm.com/status" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 5. Oracle Cloud -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-[#f80000]/5 flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-red-400">database</span>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">Oracle Cloud</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">Next-Gen OCI</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Operational
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">All cloud regions performing as expected.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://ocistatus.oraclecloud.com/" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 6. Alibaba Cloud -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-white/5 flex items-center justify-center p-2">
+<span class="material-symbols-outlined text-orange-400">api</span>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">Alibaba Cloud</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">Elastic Compute Service</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-red-500/10 text-red-400 text-[10px] font-bold rounded-full border border-red-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">cancel</span>
+                                Outage
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">Major disruption detected in CN-Hangzhou gateway endpoints.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://status.alibabacloud.com/" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 7. DigitalOcean -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-[#008bcf]/10 flex items-center justify-center p-2 text-[#008bcf]">
+<span class="material-symbols-outlined">water_drop</span>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">DigitalOcean</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">Developer Cloud</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Operational
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">App Platform and Droplets operating normally.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://status.digitalocean.com/" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 8. Cloudflare -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-orange-500/10 flex items-center justify-center p-2 text-orange-500">
+<span class="material-symbols-outlined">shield_with_heart</span>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">Cloudflare</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">Edge Networking</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold rounded-full border border-blue-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">build</span>
+                                Maintenance
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">Scheduled maintenance in London (LHR) and Frankfurt (FRA).</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://www.cloudflarestatus.com/" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 9. OVHcloud -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-[#0051a3]/10 flex items-center justify-center p-2 text-[#0051a3]">
+<span class="material-symbols-outlined">dns</span>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">OVHcloud</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">European Cloud Provider</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-green-500/10 text-green-400 text-[10px] font-bold rounded-full border border-green-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                Operational
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">Bare Metal and Public Cloud services available.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://status.ovhcloud.com/" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+<!-- 10. Vultr -->
+<div class="grid grid-cols-12 items-center px-6 py-4 rounded-lg hover:bg-surface-container-high/40 transition-all duration-200 group">
+<div class="col-span-4 flex items-center gap-4">
+<div class="w-10 h-10 rounded-md bg-gray-500/10 flex items-center justify-center p-2 text-gray-500">
+<span class="material-symbols-outlined">help</span>
+</div>
+<div>
+<h4 class="font-medium text-on-surface">Vultr</h4>
+<p class="text-[10px] text-on-surface-variant/60 uppercase tracking-tighter">SSD Cloud Hosting</p>
+</div>
+</div>
+<div class="col-span-2 flex justify-center">
+<span class="px-3 py-1 bg-gray-500/10 text-gray-400 text-[10px] font-bold rounded-full border border-gray-500/20 uppercase tracking-widest flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">help</span>
+                                Unknown
+                            </span>
+</div>
+<div class="col-span-5 px-8">
+<p class="text-xs text-on-surface-variant truncate">Requires manual check. Parsing failed or source unreachable.</p>
+</div>
+<div class="col-span-1 text-right">
+<a class="p-2 hover:text-primary transition-colors inline-block" href="https://status.vultr.com/" target="_blank">
+<span class="material-symbols-outlined text-xl">open_in_new</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Footer Stats -->
+<div class="bg-surface-container-low/30 px-8 py-4 flex justify-between items-center">
+<div class="flex gap-6 text-[10px] uppercase tracking-widest text-on-surface-variant/40">
+<span>Aggregate Health Score: 88%</span>
+<span>Tracked Providers: 10</span>
+<span>Region Coverage: Global</span>
+</div>
+<div class="flex gap-2">
+<button class="text-[10px] uppercase font-bold tracking-widest text-primary hover:underline px-2 py-1">Export Data (JSON)</button>
+</div>
+</div>
+</div>
+<!-- Dashboard Summary Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Status Distribution -->
+<div class="surface-container rounded-xl p-6 flex flex-col h-60">
+<span class="text-xs font-bold uppercase tracking-widest mb-6">Health Distribution</span>
+<div class="flex-1 flex items-center justify-center relative">
+<div class="w-32 h-32 rounded-full border-8 border-surface-container-high relative flex items-center justify-center">
+<div class="absolute inset-0 rounded-full border-8 border-green-400 border-t-transparent border-r-transparent transform rotate-45"></div>
+<div class="text-center">
+<span class="block text-2xl font-headline font-bold">7/10</span>
+<span class="block text-[8px] text-on-surface-variant uppercase">Healthy</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Regional Breakdown (Simplified per spec UI guidelines) -->
+<div class="md:col-span-2 surface-container rounded-xl p-6 flex flex-col h-60">
+<span class="text-xs font-bold uppercase tracking-widest mb-6">Service Summary</span>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6 flex-1">
+<div class="space-y-2">
+<span class="text-[10px] text-on-surface-variant/60 uppercase">Compute</span>
+<div class="h-1 w-full bg-green-500 rounded-full"></div>
+<p class="text-xs font-bold">Stable</p>
+</div>
+<div class="space-y-2">
+<span class="text-[10px] text-on-surface-variant/60 uppercase">Storage</span>
+<div class="h-1 w-full bg-green-500 rounded-full"></div>
+<p class="text-xs font-bold">Stable</p>
+</div>
+<div class="space-y-2">
+<span class="text-[10px] text-on-surface-variant/60 uppercase">Networking</span>
+<div class="h-1 w-full bg-yellow-500 rounded-full"></div>
+<p class="text-xs font-bold">Degraded (1)</p>
+</div>
+<div class="space-y-2">
+<span class="text-[10px] text-on-surface-variant/60 uppercase">Database</span>
+<div class="h-1 w-full bg-green-500 rounded-full"></div>
+<p class="text-xs font-bold">Stable</p>
+</div>
+</div>
+<div class="mt-auto border-t border-outline-variant/10 pt-4 flex justify-between items-center text-[10px] text-on-surface-variant/40">
+<span>Data reflects current operational status from verified feeds.</span>
+<span class="text-primary hover:underline cursor-pointer">View Documentation</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB - Suppression Logic: Shown on Dashboard/Home -->
+<button class="fixed bottom-8 right-8 bg-gradient-to-br from-primary to-primary-container text-on-primary-container p-4 rounded-xl shadow-2xl flex items-center gap-2 hover:scale-105 transition-transform active:scale-95 group z-50">
+<span class="material-symbols-outlined">refresh</span>
+<span class="font-headline font-bold uppercase text-xs tracking-widest px-1">Force Refresh</span>
+</button>
+</body></html>

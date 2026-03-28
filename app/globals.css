@@ -1,26 +1,65 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --background: #060e20;
+  --foreground: #dee5ff;
+  --panel: rgba(5, 24, 60, 0.8);
+  --panel-border: rgba(91, 116, 177, 0.22);
+  --card: rgba(6, 18, 45, 0.84);
+  --card-border: rgba(43, 70, 128, 0.24);
+  --card-border-strong: rgba(123, 208, 255, 0.42);
+  --toolbar: rgba(3, 29, 75, 0.56);
+  --list-surface: rgba(4, 19, 52, 0.72);
+  --list-row: rgba(4, 24, 63, 0.46);
+  --list-row-hover: rgba(8, 40, 95, 0.56);
+  --rail: rgba(6, 18, 45, 0.9);
+  --muted: #91aaeb;
+  --subtle: #d4defb;
+  --focus-ring: #7bd0ff;
+  --error-bg: rgba(127, 41, 39, 0.3);
+  --error-border: rgba(238, 125, 119, 0.36);
+  --error-text: #ffb5b0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  min-height: 100%;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
+  background-image: url("/wallpapers/dashboard-wallpaper.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), sans-serif;
+  isolation: isolate;
+  position: relative;
+}
+
+body::before {
+  background: rgba(6, 14, 32, 0.82);
+  content: "";
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: -1;
+}
+
+.font-headline {
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+::selection {
+  background: rgba(56, 189, 248, 0.28);
+  color: #f8fafc;
+}
+
+input::placeholder {
+  color: rgba(145, 170, 235, 0.44);
 }

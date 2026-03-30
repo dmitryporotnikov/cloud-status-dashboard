@@ -1,6 +1,12 @@
 import { getProviderConfig, PROVIDER_TIMEOUT_MS } from '../constants';
 import { classifyByKeywords } from '../keywords';
-import { createUnknownStatus, normalizeDescription } from '../normalize';
+import {
+  createUnknownStatus,
+  getLatestTimestamp,
+  getPrimaryDescription,
+  getWorstStatus,
+  normalizeNotifications,
+} from '../normalize';
 import { NormalizedStatus, ProviderStatus } from '../types';
 import { fetchJsonWithTimeout, normalizeText } from '../utils';
 
@@ -46,6 +52,20 @@ function getLatestGoogleIncidentUpdate(incident: GoogleIncident): GoogleIncident
 
     return rightTime - leftTime;
   })[0];
+}
+
+function getGoogleIncidentSummary(incident: GoogleIncident): string {
+  const latestUpdate = getLatestGoogleIncidentUpdate(incident);
+
+  return (
+    normalizeText(incident.external_desc) ||
+    normalizeText(latestUpdate?.text) ||
+    normalizeText(incident.service_name)
+  );
+}
+
+function getGoogleIncidentTimestamp(incident: GoogleIncident): string {
+  return normalizeText(incident.modified) || normalizeText(getLatestGoogleIncidentUpdate(incident)?.when);
 }
 
 function mapGoogleIncidentStatus(incident: GoogleIncident): ProviderStatus {
@@ -160,21 +180,25 @@ export async function fetchGoogleCloudStatus(
       };
     }
 
-    const mostRelevantIncident = activeIncidents[0];
-    const latestUpdate = getLatestGoogleIncidentUpdate(mostRelevantIncident);
+    const notifications = normalizeNotifications(activeIncidents.map(getGoogleIncidentSummary));
 
     return {
       id: config.id,
       name: config.name,
-      status: mapGoogleIncidentStatus(mostRelevantIncident),
-      description: normalizeDescription(
-        mostRelevantIncident.external_desc ?? latestUpdate?.text,
+      status: getWorstStatus(
+        activeIncidents.map(mapGoogleIncidentStatus),
+        'degraded'
+      ),
+      description: getPrimaryDescription(
+        notifications,
         options.descriptionFallback ?? 'Active incidents detected'
       ),
+      notifications: notifications.length > 0 ? notifications : undefined,
       link: config.link,
-      lastUpdated: new Date(
-        mostRelevantIncident.modified ?? latestUpdate?.when ?? new Date().toISOString()
-      ).toISOString(),
+      lastUpdated: getLatestTimestamp(
+        activeIncidents.map(getGoogleIncidentTimestamp),
+        new Date().toISOString()
+      ),
     };
   } catch {
     return createUnknownStatus(config);

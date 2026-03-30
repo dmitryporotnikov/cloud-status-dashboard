@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { NormalizedStatus, ProviderStatus } from '@/lib/status/types';
 import { getProviderConfig, PROVIDER_CATEGORIES } from '@/lib/status/constants';
+import { STATUS_GRID_DESKTOP_COLUMNS } from './status-grid-layout';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -100,6 +101,9 @@ export function StatusCard({ status }: StatusCardProps) {
   const providerConfig = getProviderConfig(status.id);
   const categoryLabel = categoryLabels[providerConfig.category] ?? providerConfig.category.toUpperCase();
   const Icon = config.icon;
+  const notifications = status.notifications ?? [];
+  const visibleNotifications = notifications.slice(0, 5);
+  const hiddenNotificationCount = Math.max(0, notifications.length - visibleNotifications.length);
   const formattedTime = new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -111,7 +115,7 @@ export function StatusCard({ status }: StatusCardProps) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${status.name}: ${config.label}. View official status page in a new tab.`}
-      className="group grid grid-cols-1 gap-4 rounded-2xl border border-[var(--card-border)] bg-[var(--list-row)] px-4 py-4 transition duration-200 hover:border-[var(--card-border-strong)] hover:bg-[var(--list-row-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] md:grid-cols-[minmax(0,2.8fr)_minmax(0,1.2fr)_minmax(0,3.4fr)_minmax(0,1.4fr)_auto] md:items-center md:gap-6 md:px-5"
+      className={`group grid grid-cols-1 gap-4 rounded-2xl border border-[var(--card-border)] bg-[var(--list-row)] px-4 py-4 transition duration-200 hover:border-[var(--card-border-strong)] hover:bg-[var(--list-row-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${STATUS_GRID_DESKTOP_COLUMNS} md:items-center md:gap-6 md:px-5`}
     >
       <div className="flex min-w-0 items-center gap-4">
         <ProviderAvatar id={status.id} name={status.name} />
@@ -137,13 +141,35 @@ export function StatusCard({ status }: StatusCardProps) {
         </span>
       </div>
 
-      <p className="line-clamp-2 text-sm leading-6 text-[var(--subtle)] md:pr-4">
-        {status.description}
-      </p>
+      {notifications.length > 1 ? (
+        <div className="space-y-2 md:pr-4">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+            {notifications.length} active notices
+          </p>
+          <ul className="space-y-1.5 text-sm leading-6 text-[var(--subtle)]">
+            {visibleNotifications.map((notification, index) => (
+              <li key={`${status.id}-${index}`} className="flex items-start gap-2">
+                <span
+                  className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-sky-300/80"
+                  aria-hidden="true"
+                />
+                <span>{notification}</span>
+              </li>
+            ))}
+          </ul>
+          {hiddenNotificationCount > 0 ? (
+            <p className="text-xs text-[var(--muted)]">+{hiddenNotificationCount} more notices</p>
+          ) : null}
+        </div>
+      ) : (
+        <p className="line-clamp-2 text-sm leading-6 text-[var(--subtle)] md:pr-4">
+          {status.description}
+        </p>
+      )}
 
       <p className="text-xs text-[var(--muted)] md:text-right">Updated {formattedTime}</p>
 
-      <span className="inline-flex items-center gap-1 text-sm font-medium text-sky-200 transition group-hover:text-sky-100 md:justify-end">
+      <span className="inline-flex items-center gap-1 text-sm font-medium text-sky-200 transition group-hover:text-sky-100 md:w-full md:justify-end">
         Open
         <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
       </span>

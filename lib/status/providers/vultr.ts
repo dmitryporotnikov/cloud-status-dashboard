@@ -1,6 +1,12 @@
 import { NormalizedStatus } from '../types';
 import { fetchJsonWithTimeout, normalizeText } from '../utils';
-import { createUnknownStatus, normalizeDescription } from '../normalize';
+import {
+  createUnknownStatus,
+  getLatestTimestamp,
+  getPrimaryDescription,
+  getWorstStatus,
+  normalizeNotifications,
+} from '../normalize';
 import { getProviderConfig, PROVIDER_TIMEOUT_MS } from '../constants';
 import { classifyByKeywords } from '../keywords';
 
@@ -47,13 +53,33 @@ function getVultrAlertTimestamp(alert: VultrAlert): string {
   );
 }
 
+function getVultrAlertMessage(alert: VultrAlert): string {
+  return normalizeText(
+    alert.entries?.find((entry) => normalizeText(entry.message))?.message
+  );
+}
+
+function getVultrAlertSummary(alert: VultrAlert): string {
+  return normalizeText(`${alert.subject ?? ''} ${getVultrAlertMessage(alert)}`);
+}
+
+function getVultrAlertStatus(alert: VultrAlert): 'degraded' | 'maintenance' | 'outage' {
+  const classified = classifyByKeywords(getVultrAlertSummary(alert));
+
+  if (classified === 'outage' || classified === 'maintenance') {
+    return classified;
+  }
+
+  return 'degraded';
+}
+
 function isActiveVultrAlert(alert: VultrAlert): boolean {
   if (normalizeText(alert.status).toLowerCase() !== 'ongoing') {
     return false;
   }
 
-  const entryMessage = alert.entries?.[0]?.message;
-  const summary = normalizeText(`${alert.subject ?? ''} ${entryMessage ?? ''}`).toLowerCase();
+  const entryMessage = getVultrAlertMessage(alert);
+  const summary = getVultrAlertSummary(alert).toLowerCase();
 
   if (!summary.includes('maintenance')) {
     return true;
@@ -106,19 +132,19 @@ export async function fetchVultrStatus(): Promise<NormalizedStatus> {
       };
     }
 
-    const alert = activeAlerts[0];
-    const summary = normalizeText(
-      `${alert.subject ?? ''} ${alert.entries?.[0]?.message ?? ''}`
-    );
-    const status = classifyByKeywords(summary);
+    const notifications = normalizeNotifications(activeAlerts.map(getVultrAlertSummary));
 
     return {
       id: config.id,
       name: config.name,
-      status: status === 'operational' ? 'degraded' : status,
-      description: normalizeDescription(alert.subject ?? summary, 'Active alerts detected'),
+      status: getWorstStatus(activeAlerts.map(getVultrAlertStatus), 'degraded'),
+      description: getPrimaryDescription(notifications, 'Active alerts detected'),
+      notifications: notifications.length > 0 ? notifications : undefined,
       link: config.link,
-      lastUpdated: new Date(getVultrAlertTimestamp(alert)).toISOString(),
+      lastUpdated: getLatestTimestamp(
+        activeAlerts.map(getVultrAlertTimestamp),
+        new Date().toISOString()
+      ),
     };
   } catch {
     return createUnknownStatus(config);

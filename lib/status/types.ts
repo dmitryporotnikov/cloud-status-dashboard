@@ -12,6 +12,7 @@ export interface NormalizedStatus {
   name: string;
   status: ProviderStatus;
   description: string;
+  notifications?: string[];
   link: string;
   lastUpdated: string;
 }

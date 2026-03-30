@@ -1,6 +1,12 @@
 import { getProviderConfig, PROVIDER_TIMEOUT_MS } from '../constants';
 import { classifyByKeywords } from '../keywords';
-import { createUnknownStatus, normalizeDescription } from '../normalize';
+import {
+  createUnknownStatus,
+  getLatestTimestamp,
+  getPrimaryDescription,
+  getWorstStatus,
+  normalizeNotifications,
+} from '../normalize';
 import { NormalizedStatus, ProviderStatus } from '../types';
 import { fetchJsonWithTimeout, normalizeText } from '../utils';
 
@@ -141,36 +147,47 @@ export async function fetchSalesforceStatus(): Promise<NormalizedStatus> {
         PROVIDER_TIMEOUT_MS
       ),
     ]);
-    const activeIncident = sortByUpdatedAt(
+    const activeIncidents = sortByUpdatedAt(
       incidents.filter((incident) => isOpenSalesforceItem(incident.status))
-    )[0];
-    const activeMaintenance = sortByUpdatedAt(
+    );
+    const activeMaintenances = sortByUpdatedAt(
       maintenances.filter(isActiveSalesforceMaintenance)
-    )[0];
+    );
+    const notifications = normalizeNotifications([
+      ...activeIncidents.map(getSalesforceIncidentSummary),
+      ...activeMaintenances.map(getSalesforceMaintenanceSummary),
+    ]);
 
     return {
       id: config.id,
       name: config.name,
-      status: activeIncident
-        ? getSalesforceIncidentStatus(activeIncident)
-        : activeMaintenance
-          ? 'maintenance'
-          : 'operational',
-      description: activeIncident
-        ? normalizeDescription(getSalesforceIncidentSummary(activeIncident), 'Active incident detected')
-        : activeMaintenance
-          ? normalizeDescription(
-              getSalesforceMaintenanceSummary(activeMaintenance),
-              'Active maintenance detected'
+      status:
+        activeIncidents.length > 0 || activeMaintenances.length > 0
+          ? getWorstStatus(
+              [
+                ...activeIncidents.map(getSalesforceIncidentStatus),
+                ...activeMaintenances.map(() => 'maintenance' as const),
+              ],
+              activeIncidents.length > 0 ? 'degraded' : 'maintenance'
             )
-          : 'All systems operational',
+          : 'operational',
+      description: getPrimaryDescription(
+        notifications,
+        activeIncidents.length > 0
+          ? 'Active incident detected'
+          : activeMaintenances.length > 0
+            ? 'Active maintenance detected'
+            : 'All systems operational'
+      ),
+      notifications: notifications.length > 0 ? notifications : undefined,
       link: config.link,
-      lastUpdated:
-        normalizeText(activeIncident?.updatedAt) ||
-        normalizeText(activeMaintenance?.updatedAt) ||
-        normalizeText(activeIncident?.createdAt) ||
-        normalizeText(activeMaintenance?.createdAt) ||
-        new Date().toISOString(),
+      lastUpdated: getLatestTimestamp(
+        [
+          ...activeIncidents.map((incident) => incident.updatedAt ?? incident.createdAt),
+          ...activeMaintenances.map((maintenance) => maintenance.updatedAt ?? maintenance.createdAt),
+        ],
+        new Date().toISOString()
+      ),
     };
   } catch {
     return createUnknownStatus(config);

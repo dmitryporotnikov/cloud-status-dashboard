@@ -14,6 +14,7 @@ import {
 import { StatusGrid } from '@/components/status-grid';
 import { StatusSkeleton } from '@/components/status-skeleton';
 import { PageHeader } from '@/components/page-header';
+import { STATUS_GRID_DESKTOP_COLUMNS } from '@/components/status-grid-layout';
 import {
   CLIENT_REFRESH_MS,
   getProviderConfig,
@@ -57,6 +58,7 @@ function matchesSearchQuery(status: NormalizedStatus, query: string): boolean {
     status.name,
     status.status,
     status.description,
+    status.notifications?.join(' ') ?? '',
     provider.category,
   ]
     .join(' ')
@@ -153,12 +155,16 @@ function LoadingList({ categories }: { categories?: ProviderCategory[] }) {
 
   return (
     <div className="overflow-hidden rounded-[1.75rem] border border-[var(--panel-border)] bg-[var(--list-surface)] shadow-[0_26px_90px_rgba(2,10,28,0.36)]">
-      <div className="hidden grid-cols-[minmax(0,2.8fr)_minmax(0,1.2fr)_minmax(0,3.4fr)_minmax(0,1.4fr)_auto] gap-6 border-b border-[var(--panel-border)] bg-[var(--toolbar)] px-5 py-3 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--muted)] md:grid">
-        <div>Provider Identity</div>
-        <div className="text-center">Status</div>
-        <div>Summary</div>
-        <div className="text-right">Updated</div>
-        <div className="text-right">Link</div>
+      <div className="hidden border-b border-[var(--panel-border)] bg-[var(--toolbar)]/80 px-3 py-3 sm:px-4 md:block">
+        <div
+          className={`grid ${STATUS_GRID_DESKTOP_COLUMNS} gap-6 px-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--muted)]`}
+        >
+          <div>Provider Identity</div>
+          <div className="text-center">Status</div>
+          <div>Summary</div>
+          <div className="text-right">Updated</div>
+          <div className="text-right">Link</div>
+        </div>
       </div>
 
       <div className="space-y-4 p-3 sm:p-4">

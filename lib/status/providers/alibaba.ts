@@ -1,6 +1,12 @@
 import { NormalizedStatus } from '../types';
 import { getProviderConfig, PROVIDER_TIMEOUT_MS } from '../constants';
-import { createManualCheckStatus, normalizeDescription } from '../normalize';
+import {
+  createManualCheckStatus,
+  getLatestTimestamp,
+  getPrimaryDescription,
+  getWorstStatus,
+  normalizeNotifications,
+} from '../normalize';
 import { classifyByKeywords } from '../keywords';
 import { fetchJsonWithTimeout, normalizeText } from '../utils';
 
@@ -15,6 +21,22 @@ interface AlibabaStatusEvent {
 interface AlibabaStatusResponse {
   data?: AlibabaStatusEvent[] | null;
   success?: boolean;
+}
+
+function getAlibabaEventStatus(event: AlibabaStatusEvent): 'degraded' | 'maintenance' | 'outage' {
+  const summary = normalizeText(event.title);
+  const eventType = normalizeText(event.eventType).toLowerCase();
+  const classified = classifyByKeywords(summary);
+
+  if (eventType.includes('maint')) {
+    return 'maintenance';
+  }
+
+  if (classified === 'outage') {
+    return 'outage';
+  }
+
+  return 'degraded';
 }
 
 export async function fetchAlibabaStatus(): Promise<NormalizedStatus> {
@@ -46,27 +68,23 @@ export async function fetchAlibabaStatus(): Promise<NormalizedStatus> {
       };
     }
 
-    const currentEvent = activeEvents[0];
-    const summary = normalizeText(currentEvent.title);
-    const eventType = normalizeText(currentEvent.eventType).toLowerCase();
-
-    let status = classifyByKeywords(summary);
-
-    if (eventType.includes('maint')) {
-      status = 'maintenance';
-    } else if (status === 'operational') {
-      status = 'degraded';
-    }
+    const notifications = normalizeNotifications(activeEvents.map((event) => event.title));
 
     return {
       id: config.id,
       name: config.name,
-      status,
-      description: normalizeDescription(summary, 'Active incidents detected'),
+      status: getWorstStatus(activeEvents.map(getAlibabaEventStatus), 'degraded'),
+      description: getPrimaryDescription(notifications, 'Active incidents detected'),
+      notifications: notifications.length > 0 ? notifications : undefined,
       link: config.link,
-      lastUpdated: new Date(
-        currentEvent.lastUpdateTime ?? currentEvent.startTime ?? Date.now()
-      ).toISOString(),
+      lastUpdated: getLatestTimestamp(
+        activeEvents.map((event) =>
+          event.lastUpdateTime || event.startTime
+            ? new Date(event.lastUpdateTime ?? event.startTime ?? Date.now()).toISOString()
+            : ''
+        ),
+        new Date().toISOString()
+      ),
     };
   } catch {
     return createManualCheckStatus(config);

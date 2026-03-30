@@ -14,6 +14,7 @@ import { fetchAkamaiStatus } from './providers/akamai';
 import { fetchVercelStatus } from './providers/vercel';
 import { fetchHerokuStatus } from './providers/heroku';
 import { fetchMongoDBStatus } from './providers/mongodb';
+import { fetchUpCloudStatus } from './providers/upcloud';
 import { fetchGitHubStatus } from './providers/github';
 import { fetchGitLabStatus } from './providers/gitlab';
 import { fetchAtlassianStatus } from './providers/atlassian';
@@ -44,6 +45,7 @@ export { fetchAkamaiStatus } from './providers/akamai';
 export { fetchVercelStatus } from './providers/vercel';
 export { fetchHerokuStatus } from './providers/heroku';
 export { fetchMongoDBStatus } from './providers/mongodb';
+export { fetchUpCloudStatus } from './providers/upcloud';
 export { fetchGitHubStatus } from './providers/github';
 export { fetchGitLabStatus } from './providers/gitlab';
 export { fetchAtlassianStatus } from './providers/atlassian';
@@ -73,6 +75,7 @@ const PROVIDER_FETCHERS = [
   { config: getProviderConfig('vercel'), fetcher: fetchVercelStatus },
   { config: getProviderConfig('heroku'), fetcher: fetchHerokuStatus },
   { config: getProviderConfig('mongodb'), fetcher: fetchMongoDBStatus },
+  { config: getProviderConfig('upcloud'), fetcher: fetchUpCloudStatus },
   { config: getProviderConfig('github'), fetcher: fetchGitHubStatus },
   { config: getProviderConfig('gitlab'), fetcher: fetchGitLabStatus },
   { config: getProviderConfig('atlassian'), fetcher: fetchAtlassianStatus },

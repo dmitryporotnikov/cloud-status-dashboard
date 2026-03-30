@@ -1,12 +1,12 @@
 # Cloud Status Dashboard
 
-A dashboard that pulls together status updates from 26 cloud providers into one place. Everything shows up on a single dashboard, refreshed every 5 minutes.
+A dashboard that pulls together status updates from 27 cloud providers into one place. Everything shows up on a single dashboard, refreshed every 5 minutes.
 
 The app fetches provider status server-side, normalizes different data formats into a shared model, and renders them in a clean responsive UI. Browsers only ever call your own deployment, never provider endpoints directly (to do not be throttled/banned from the provider api for overuse).
 
 ## Supported Providers
 
-IAAS: AWS, Microsoft Azure, Google Cloud Platform, IBM Cloud, Oracle Cloud, Alibaba Cloud, DigitalOcean, Cloudflare, OVHcloud, Vultr, Linode, Akamai, Vercel, Heroku, MongoDB Cloud
+IAAS: AWS, Microsoft Azure, Google Cloud Platform, IBM Cloud, Oracle Cloud, Alibaba Cloud, DigitalOcean, Cloudflare, OVHcloud, Vultr, Linode, Akamai, Vercel, Heroku, MongoDB Cloud, UpCloud
 
 SAAS: GitHub, GitLab, Atlassian, Datadog, Twilio, Slack, Splunk Cloud Platform, Salesforce, Claude, Gemini, OpenAI
 
@@ -89,4 +89,3 @@ docker push YOUR_DOCKERHUB_USERNAME/status-dashboard:0.1.0
 docker pull YOUR_DOCKERHUB_USERNAME/status-dashboard:latest
 docker run --rm -p 3000:3000 YOUR_DOCKERHUB_USERNAME/status-dashboard:latest
 ```
-

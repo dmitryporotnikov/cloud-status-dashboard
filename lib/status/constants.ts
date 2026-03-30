@@ -29,6 +29,7 @@ export const PROVIDERS: ProviderConfig[] = [
   { id: 'vercel', name: 'Vercel', link: 'https://www.vercel-status.com/', category: 'iaas' },
   { id: 'heroku', name: 'Heroku', link: 'https://status.heroku.com/', category: 'iaas' },
   { id: 'mongodb', name: 'MongoDB Cloud', link: 'https://status.mongodb.com/', category: 'iaas' },
+  { id: 'upcloud', name: 'UpCloud', link: 'https://status.upcloud.com/', category: 'iaas' },
   { id: 'github', name: 'GitHub', link: 'https://www.githubstatus.com/', category: 'saas' },
   { id: 'gitlab', name: 'GitLab', link: 'https://status.gitlab.com/', category: 'saas' },
   { id: 'atlassian', name: 'Atlassian', link: 'https://status.atlassian.com/', category: 'saas' },

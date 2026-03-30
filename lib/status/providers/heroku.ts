@@ -1,6 +1,13 @@
 import { getProviderConfig, PROVIDER_TIMEOUT_MS } from '../constants';
 import { classifyByKeywords } from '../keywords';
-import { createUnknownStatus, normalizeDescription } from '../normalize';
+import {
+  createUnknownStatus,
+  getLatestTimestamp,
+  getPrimaryDescription,
+  getWorstStatus,
+  normalizeDescription,
+  normalizeNotifications,
+} from '../normalize';
 import { NormalizedStatus, ProviderStatus } from '../types';
 import { fetchJsonWithTimeout, normalizeText } from '../utils';
 
@@ -43,6 +50,31 @@ function getHerokuEventSummary(event: HerokuEvent | undefined): string {
   return normalizeText(event?.title) || normalizeText(event?.description);
 }
 
+function getHerokuEventTimestamp(event: HerokuEvent | undefined): string {
+  return normalizeText(event?.updated_at) || normalizeText(event?.created_at);
+}
+
+function sortHerokuEvents(events: HerokuEvent[]): HerokuEvent[] {
+  return [...events].sort((left, right) => {
+    const leftTime = Date.parse(getHerokuEventTimestamp(left)) || 0;
+    const rightTime = Date.parse(getHerokuEventTimestamp(right)) || 0;
+
+    return rightTime - leftTime;
+  });
+}
+
+function getHerokuIncidentStatus(event: HerokuEvent): ProviderStatus {
+  const classified = classifyByKeywords(
+    normalizeText(`${getHerokuEventSummary(event)} ${event.status ?? ''}`)
+  );
+
+  if (classified === 'outage' || classified === 'degraded' || classified === 'maintenance') {
+    return classified;
+  }
+
+  return 'degraded';
+}
+
 function getWorstHerokuStatus(systems: HerokuSystemStatus[]): ProviderStatus {
   if (systems.length === 0) {
     return 'unknown';
@@ -79,44 +111,52 @@ export async function fetchHerokuStatus(): Promise<NormalizedStatus> {
       PROVIDER_TIMEOUT_MS
     );
     const systems = response.status ?? [];
-    const incidents = response.incidents ?? [];
-    const scheduledEvents = response.scheduled ?? [];
-    const activeIncident = incidents[0];
-    const activeMaintenance = scheduledEvents[0];
-    const incidentSummary = getHerokuEventSummary(activeIncident);
-    const maintenanceSummary = getHerokuEventSummary(activeMaintenance);
-    const primarySystem = systems.find((system) => mapHerokuStatusColor(system.status ?? '') !== 'operational');
-    let status = getWorstHerokuStatus(systems);
-
-    if (activeIncident) {
-      const classified = classifyByKeywords(
-        normalizeText(`${incidentSummary} ${activeIncident.status ?? ''}`)
-      );
-      status = classified === 'operational' ? (status === 'operational' ? 'degraded' : status) : classified;
-    } else if (activeMaintenance && status === 'operational') {
-      status = 'maintenance';
-    }
+    const incidents = sortHerokuEvents(response.incidents ?? []);
+    const scheduledEvents = sortHerokuEvents(response.scheduled ?? []);
+    const primarySystem = systems.find(
+      (system) => mapHerokuStatusColor(system.status ?? '') !== 'operational'
+    );
+    const systemStatus = getWorstHerokuStatus(systems);
+    const notifications = normalizeNotifications([
+      ...incidents.map(getHerokuEventSummary),
+      ...scheduledEvents.map(getHerokuEventSummary),
+    ]);
+    const status = getWorstStatus(
+      [
+        systemStatus,
+        ...incidents.map(getHerokuIncidentStatus),
+        ...scheduledEvents.map(() => 'maintenance' as const),
+      ],
+      incidents.length > 0
+        ? 'degraded'
+        : scheduledEvents.length > 0
+          ? 'maintenance'
+          : systemStatus
+    );
 
     return {
       id: config.id,
       name: config.name,
       status,
-      description: activeIncident
-        ? normalizeDescription(incidentSummary, 'Active incident detected')
-        : activeMaintenance
-          ? normalizeDescription(maintenanceSummary, 'Active maintenance detected')
-          : primarySystem
-            ? normalizeDescription(
-                `${normalizeText(primarySystem.system)}: ${normalizeText(primarySystem.status)}`,
-                'Service disruption detected'
-              )
-            : 'All systems operational',
+      description: getPrimaryDescription(
+        notifications,
+        incidents.length > 0
+          ? 'Active incident detected'
+          : scheduledEvents.length > 0
+            ? 'Active maintenance detected'
+            : primarySystem
+              ? normalizeDescription(
+                  `${normalizeText(primarySystem.system)}: ${normalizeText(primarySystem.status)}`,
+                  'Service disruption detected'
+                )
+              : 'All systems operational'
+      ),
+      notifications: notifications.length > 0 ? notifications : undefined,
       link: config.link,
-      lastUpdated:
-        normalizeText(activeIncident?.updated_at) ||
-        normalizeText(activeMaintenance?.updated_at) ||
-        normalizeText(activeIncident?.created_at) ||
-        new Date().toISOString(),
+      lastUpdated: getLatestTimestamp(
+        [...incidents.map(getHerokuEventTimestamp), ...scheduledEvents.map(getHerokuEventTimestamp)],
+        new Date().toISOString()
+      ),
     };
   } catch {
     return createUnknownStatus(config);

@@ -1,6 +1,14 @@
 import { getProviderConfig, PROVIDER_TIMEOUT_MS } from '../constants';
 import { classifyByKeywords } from '../keywords';
-import { createUnknownStatus, mapStatuspageIndicator, normalizeDescription } from '../normalize';
+import {
+  createUnknownStatus,
+  getLatestTimestamp,
+  getPrimaryDescription,
+  getWorstStatus,
+  mapStatuspageIndicator,
+  normalizeDescription,
+  normalizeNotifications,
+} from '../normalize';
 import { NormalizedStatus, ProviderStatus } from '../types';
 import { fetchJsonWithTimeout, normalizeText } from '../utils';
 
@@ -51,6 +59,19 @@ function getStatuspageEntrySummary(entry: StatuspageEntry): string {
   return normalizeText(entry.name) || getLatestStatuspageUpdate(entry);
 }
 
+function getStatuspageEntryTimestamp(entry: StatuspageEntry): string {
+  return normalizeText(entry.updated_at) || normalizeText(entry.scheduled_for) || normalizeText(entry.scheduled_until);
+}
+
+function sortStatuspageEntries(entries: StatuspageEntry[]): StatuspageEntry[] {
+  return [...entries].sort((left, right) => {
+    const leftTime = Date.parse(getStatuspageEntryTimestamp(left)) || 0;
+    const rightTime = Date.parse(getStatuspageEntryTimestamp(right)) || 0;
+
+    return rightTime - leftTime;
+  });
+}
+
 function isResolvedStatuspageIncident(entry: StatuspageEntry): boolean {
   return RESOLVED_INCIDENT_STATUSES.has(normalizeText(entry.status).toLowerCase());
 }
@@ -92,45 +113,56 @@ export async function fetchStatuspageSummaryStatus(
       {},
       PROVIDER_TIMEOUT_MS
     );
-    const activeIncident = response.incidents?.find(
-      (incident) => !isResolvedStatuspageIncident(incident)
+    const activeIncidents = sortStatuspageEntries(
+      (response.incidents ?? []).filter((incident) => !isResolvedStatuspageIncident(incident))
     );
-    const activeMaintenance = response.scheduled_maintenances?.find(isActiveStatuspageMaintenance);
+    const activeMaintenances = sortStatuspageEntries(
+      (response.scheduled_maintenances ?? []).filter(isActiveStatuspageMaintenance)
+    );
+    const notifications = normalizeNotifications([
+      ...activeIncidents.map(getStatuspageEntrySummary),
+      ...activeMaintenances.map(getStatuspageEntrySummary),
+    ]);
 
     let status = mapStatuspageIndicator(response.status?.indicator);
 
-    if (activeIncident) {
-      status = getIncidentStatus(activeIncident);
-    } else if (activeMaintenance) {
-      status = 'maintenance';
+    if (activeIncidents.length > 0 || activeMaintenances.length > 0) {
+      status = getWorstStatus(
+        [
+          ...activeIncidents.map(getIncidentStatus),
+          ...activeMaintenances.map(() => 'maintenance' as const),
+        ],
+        activeIncidents.length > 0 ? 'degraded' : 'maintenance'
+      );
     } else if (status === 'unknown') {
       const fallbackText = normalizeText(response.status?.description);
       status = fallbackText ? classifyByKeywords(fallbackText) : 'unknown';
     }
 
-    const description = activeIncident
-      ? normalizeDescription(
-          getStatuspageEntrySummary(activeIncident),
-          normalizeDescription(response.status?.description, 'Active incident detected')
-        )
-      : activeMaintenance
-        ? normalizeDescription(
-            getStatuspageEntrySummary(activeMaintenance),
-            normalizeDescription(response.status?.description, 'Active maintenance detected')
-          )
-        : normalizeDescription(response.status?.description, 'All systems operational');
+    const description = getPrimaryDescription(
+      notifications,
+      activeIncidents.length > 0
+        ? normalizeDescription(response.status?.description, 'Active incident detected')
+        : activeMaintenances.length > 0
+          ? normalizeDescription(response.status?.description, 'Active maintenance detected')
+          : normalizeDescription(response.status?.description, 'All systems operational')
+    );
 
     return {
       id: config.id,
       name: config.name,
       status,
       description,
+      notifications: notifications.length > 0 ? notifications : undefined,
       link: config.link,
-      lastUpdated:
-        normalizeText(activeIncident?.updated_at) ||
-        normalizeText(activeMaintenance?.updated_at) ||
-        normalizeText(response.page?.updated_at) ||
-        new Date().toISOString(),
+      lastUpdated: getLatestTimestamp(
+        [
+          ...activeIncidents.map(getStatuspageEntryTimestamp),
+          ...activeMaintenances.map(getStatuspageEntryTimestamp),
+          response.page?.updated_at,
+        ],
+        new Date().toISOString()
+      ),
     };
   } catch {
     return createUnknownStatus(config);

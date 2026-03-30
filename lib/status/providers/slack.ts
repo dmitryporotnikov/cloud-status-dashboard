@@ -1,6 +1,13 @@
 import { getProviderConfig, PROVIDER_TIMEOUT_MS } from '../constants';
 import { classifyByKeywords } from '../keywords';
-import { createUnknownStatus, normalizeDescription } from '../normalize';
+import {
+  createUnknownStatus,
+  getLatestTimestamp,
+  getPrimaryDescription,
+  getWorstStatus,
+  normalizeDescription,
+  normalizeNotifications,
+} from '../normalize';
 import { NormalizedStatus, ProviderStatus } from '../types';
 import { fetchJsonWithTimeout, normalizeText } from '../utils';
 
@@ -33,17 +40,7 @@ function getSlackIncidentSummary(incident: SlackIncident | undefined): string {
   return parts.join(' - ');
 }
 
-function getSlackStatus(response: SlackCurrentStatusResponse, summary: string): ProviderStatus {
-  if (summary) {
-    const classified = classifyByKeywords(summary);
-
-    if (classified !== 'operational') {
-      return classified;
-    }
-
-    return 'degraded';
-  }
-
+function getSlackResponseStatus(response: SlackCurrentStatusResponse): ProviderStatus {
   const currentStatus = normalizeText(response.status).toLowerCase();
 
   if (currentStatus === 'ok') {
@@ -61,6 +58,16 @@ function getSlackStatus(response: SlackCurrentStatusResponse, summary: string): 
   return 'unknown';
 }
 
+function getSlackIncidentStatus(incident: SlackIncident): ProviderStatus {
+  const classified = classifyByKeywords(getSlackIncidentSummary(incident));
+
+  if (classified === 'outage' || classified === 'degraded' || classified === 'maintenance') {
+    return classified;
+  }
+
+  return 'degraded';
+}
+
 export async function fetchSlackStatus(): Promise<NormalizedStatus> {
   const config = getProviderConfig('slack');
 
@@ -70,26 +77,35 @@ export async function fetchSlackStatus(): Promise<NormalizedStatus> {
       {},
       PROVIDER_TIMEOUT_MS
     );
-    const activeIncident = response.active_incidents?.[0];
-    const summary = getSlackIncidentSummary(activeIncident);
+    const incidents = response.active_incidents ?? [];
+    const notifications = normalizeNotifications(incidents.map(getSlackIncidentSummary));
+    const responseStatus = getSlackResponseStatus(response);
 
     return {
       id: config.id,
       name: config.name,
-      status: getSlackStatus(response, summary),
-      description: summary
-        ? normalizeDescription(summary, 'Active incident detected')
-        : normalizeDescription(
+      status:
+        incidents.length > 0
+          ? getWorstStatus(
+              incidents.map(getSlackIncidentStatus),
+              responseStatus === 'operational' ? 'degraded' : responseStatus
+            )
+          : responseStatus,
+      description: getPrimaryDescription(
+        notifications,
+        normalizeDescription(
             normalizeText(response.status).toLowerCase() === 'ok'
               ? 'All systems operational'
               : response.status,
             'All systems operational'
-          ),
+          )
+      ),
+      notifications: notifications.length > 0 ? notifications : undefined,
       link: config.link,
-      lastUpdated:
-        normalizeText(response.date_updated) ||
-        normalizeText(response.date_created) ||
-        new Date().toISOString(),
+      lastUpdated: getLatestTimestamp(
+        [response.date_updated, response.date_created],
+        new Date().toISOString()
+      ),
     };
   } catch {
     return createUnknownStatus(config);

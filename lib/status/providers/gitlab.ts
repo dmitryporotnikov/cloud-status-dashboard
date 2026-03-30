@@ -1,7 +1,12 @@
 import * as cheerio from 'cheerio';
 import { getProviderConfig, PROVIDER_TIMEOUT_MS } from '../constants';
 import { classifyByKeywords } from '../keywords';
-import { createUnknownStatus, normalizeDescription } from '../normalize';
+import {
+  createUnknownStatus,
+  getPrimaryDescription,
+  normalizeDescription,
+  normalizeNotifications,
+} from '../normalize';
 import { NormalizedStatus, ProviderStatus } from '../types';
 import { fetchTextWithTimeout, normalizeText } from '../utils';
 
@@ -78,18 +83,19 @@ export async function fetchGitLabStatus(): Promise<NormalizedStatus> {
         return { name, label, status };
       })
       .filter((component) => component.status !== 'operational' && component.status !== 'unknown');
-    const primaryIssue = componentIssues[0];
+    const notifications = normalizeNotifications(
+      componentIssues.map((component) => `${component.name}: ${component.label}`)
+    );
 
     return {
       id: config.id,
       name: config.name,
       status: getWorstGitLabStatus(componentIssues, statusbarText),
-      description: primaryIssue
-        ? normalizeDescription(
-            `${primaryIssue.name}: ${primaryIssue.label}`,
-            normalizeDescription(statusbarText, 'Active service issue detected')
-          )
-        : normalizeDescription(statusbarText, 'All systems operational'),
+      description: getPrimaryDescription(
+        notifications,
+        normalizeDescription(statusbarText, 'All systems operational')
+      ),
+      notifications: notifications.length > 0 ? notifications : undefined,
       link: config.link,
       lastUpdated: new Date().toISOString(),
     };

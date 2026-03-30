@@ -9,10 +9,10 @@ interface StatusGridProps {
 
 export function StatusGrid({ statuses }: StatusGridProps) {
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-[var(--panel-border)] bg-[var(--list-surface)] shadow-[0_26px_90px_rgba(2,10,28,0.36)]">
-      <div className="hidden border-b border-[var(--panel-border)] bg-[var(--toolbar)]/80 px-3 py-3 sm:px-4 md:block">
+    <div className="overflow-hidden rounded-[1.75rem] border border-(--panel-border) bg-(--list-surface) shadow-[0_26px_90px_rgba(2,10,28,0.36)]">
+      <div className="hidden border-b border-(--panel-border) bg-(--toolbar)/80 px-3 py-3 sm:px-4 md:block">
         <div
-          className={`grid ${STATUS_GRID_DESKTOP_COLUMNS} gap-6 px-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--muted)]`}
+          className={`grid ${STATUS_GRID_DESKTOP_COLUMNS} gap-6 px-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-(--muted)`}
         >
           <div>Provider Identity</div>
           <div className="text-center">Status</div>
@@ -42,7 +42,7 @@ export function StatusGrid({ statuses }: StatusGridProps) {
                 >
                   {category.label}
                 </h2>
-                <p className="text-sm leading-6 text-[var(--muted)]">{category.description}</p>
+                <p className="text-sm leading-6 text-(--muted)">{category.description}</p>
               </div>
               <p className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-200">
                 {categoryStatuses.length} providers

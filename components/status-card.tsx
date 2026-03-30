@@ -115,18 +115,18 @@ export function StatusCard({ status }: StatusCardProps) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label={`${status.name}: ${config.label}. View official status page in a new tab.`}
-      className={`group grid grid-cols-1 gap-4 rounded-2xl border border-[var(--card-border)] bg-[var(--list-row)] px-4 py-4 transition duration-200 hover:border-[var(--card-border-strong)] hover:bg-[var(--list-row-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${STATUS_GRID_DESKTOP_COLUMNS} md:items-center md:gap-6 md:px-5`}
+      className={`group grid grid-cols-1 gap-4 rounded-2xl border border-(--card-border) bg-(--list-row) px-4 py-4 transition duration-200 hover:border-(--card-border-strong) hover:bg-(--list-row-hover) focus:outline-none focus:ring-2 focus:ring-(--focus-ring) ${STATUS_GRID_DESKTOP_COLUMNS} md:items-center md:gap-6 md:px-5`}
     >
       <div className="flex min-w-0 items-center gap-4">
         <ProviderAvatar id={status.id} name={status.name} />
         <div className="min-w-0">
           <div className="mb-1 flex flex-wrap items-center gap-2">
             <h3 className="truncate text-base font-semibold text-white md:text-lg">{status.name}</h3>
-            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--muted)]">
+            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-(--muted)">
               {categoryLabel}
             </span>
           </div>
-          <p className="text-[10px] uppercase tracking-[0.22em] text-[var(--muted)]/80">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-(--muted)/80">
             {status.id}
           </p>
         </div>
@@ -143,10 +143,10 @@ export function StatusCard({ status }: StatusCardProps) {
 
       {notifications.length > 1 ? (
         <div className="space-y-2 md:pr-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-(--muted)">
             {notifications.length} active notices
           </p>
-          <ul className="space-y-1.5 text-sm leading-6 text-[var(--subtle)]">
+          <ul className="space-y-1.5 text-sm leading-6 text-(--subtle)">
             {visibleNotifications.map((notification, index) => (
               <li key={`${status.id}-${index}`} className="flex items-start gap-2">
                 <span
@@ -158,16 +158,16 @@ export function StatusCard({ status }: StatusCardProps) {
             ))}
           </ul>
           {hiddenNotificationCount > 0 ? (
-            <p className="text-xs text-[var(--muted)]">+{hiddenNotificationCount} more notices</p>
+            <p className="text-xs text-(--muted)">+{hiddenNotificationCount} more notices</p>
           ) : null}
         </div>
       ) : (
-        <p className="line-clamp-2 text-sm leading-6 text-[var(--subtle)] md:pr-4">
+        <p className="line-clamp-2 text-sm leading-6 text-(--subtle) md:pr-4">
           {status.description}
         </p>
       )}
 
-      <p className="text-xs text-[var(--muted)] md:text-right">Updated {formattedTime}</p>
+      <p className="text-xs text-(--muted) md:text-right">Updated {formattedTime}</p>
 
       <span className="inline-flex items-center gap-1 text-sm font-medium text-sky-200 transition group-hover:text-sky-100 md:w-full md:justify-end">
         Open

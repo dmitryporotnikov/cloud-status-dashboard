@@ -30,7 +30,7 @@ export function PageHeader({ lastUpdated }: PageHeaderProps) {
     : false;
 
   return (
-    <div className="flex flex-col gap-5 border-b border-[var(--panel-border)] pb-7 lg:flex-row lg:items-end lg:justify-between">
+    <div className="flex flex-col gap-5 border-b border-(--panel-border) pb-7 lg:flex-row lg:items-end lg:justify-between">
       <div className="max-w-3xl">
         <p className="mb-3 text-[11px] font-semibold uppercase tracking-[0.34em] text-sky-300/78">
           Provider Operations Feed
@@ -38,14 +38,14 @@ export function PageHeader({ lastUpdated }: PageHeaderProps) {
         <h1 className="font-headline mb-3 text-4xl font-bold tracking-[-0.04em] text-white md:text-5xl">
           Global Provider Status
         </h1>
-        <p className="max-w-2xl text-sm leading-6 text-[var(--muted)] md:text-base">
+        <p className="max-w-2xl text-sm leading-6 text-(--muted) md:text-base">
           A searchable operations board for cloud, AI, and SaaS vendors. Scan active incidents,
           filter by platform class, and jump to each provider&apos;s official status page fast.
         </p>
       </div>
 
       {formattedLastUpdated && (
-        <div className="inline-flex items-center gap-3 self-start rounded-full border border-[var(--panel-border)] bg-[var(--toolbar)] px-4 py-2 text-xs uppercase tracking-[0.24em] text-[var(--muted)] lg:self-auto">
+        <div className="inline-flex items-center gap-3 self-start rounded-full border border-(--panel-border) bg-(--toolbar) px-4 py-2 text-xs uppercase tracking-[0.24em] text-(--muted) lg:self-auto">
           <span
             className={`h-2.5 w-2.5 rounded-full ${
               ledShouldBeRed

@@ -4,7 +4,6 @@ import { CACHE_REVALIDATE_SECONDS, PROVIDERS, PROVIDER_CATEGORIES } from '@/lib/
 import { createUnknownStatus } from '@/lib/status/normalize';
 import { ProviderCategory } from '@/lib/status/types';
 
-export const revalidate = CACHE_REVALIDATE_SECONDS;
 export const dynamic = 'force-dynamic';
 
 function isProviderCategory(value: string | null): value is ProviderCategory {

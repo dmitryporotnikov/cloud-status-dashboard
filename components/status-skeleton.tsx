@@ -3,7 +3,7 @@ import { STATUS_GRID_DESKTOP_COLUMNS } from './status-grid-layout';
 export function StatusSkeleton() {
   return (
     <div
-      className={`animate-pulse rounded-2xl border border-[var(--card-border)] bg-[var(--list-row)] px-4 py-4 md:grid ${STATUS_GRID_DESKTOP_COLUMNS} md:items-center md:gap-6 md:px-5`}
+      className={`animate-pulse rounded-2xl border border-(--card-border) bg-(--list-row) px-4 py-4 md:grid ${STATUS_GRID_DESKTOP_COLUMNS} md:items-center md:gap-6 md:px-5`}
     >
       <div className="flex items-center gap-4">
         <div className="h-12 w-12 rounded-xl bg-white/10"></div>

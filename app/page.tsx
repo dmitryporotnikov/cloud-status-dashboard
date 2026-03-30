@@ -154,10 +154,10 @@ function LoadingList({ categories }: { categories?: ProviderCategory[] }) {
     : PROVIDER_CATEGORIES;
 
   return (
-    <div className="overflow-hidden rounded-[1.75rem] border border-[var(--panel-border)] bg-[var(--list-surface)] shadow-[0_26px_90px_rgba(2,10,28,0.36)]">
-      <div className="hidden border-b border-[var(--panel-border)] bg-[var(--toolbar)]/80 px-3 py-3 sm:px-4 md:block">
+    <div className="overflow-hidden rounded-[1.75rem] border border-(--panel-border) bg-(--list-surface) shadow-[0_26px_90px_rgba(2,10,28,0.36)]">
+      <div className="hidden border-b border-(--panel-border) bg-(--toolbar)/80 px-3 py-3 sm:px-4 md:block">
         <div
-          className={`grid ${STATUS_GRID_DESKTOP_COLUMNS} gap-6 px-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--muted)]`}
+          className={`grid ${STATUS_GRID_DESKTOP_COLUMNS} gap-6 px-5 text-[11px] font-semibold uppercase tracking-[0.24em] text-(--muted)`}
         >
           <div>Provider Identity</div>
           <div className="text-center">Status</div>
@@ -175,7 +175,7 @@ function LoadingList({ categories }: { categories?: ProviderCategory[] }) {
                 <h2 className="font-headline text-2xl font-semibold tracking-[-0.04em] text-white">
                   {category.label}
                 </h2>
-                <p className="text-sm leading-6 text-[var(--muted)]">{category.description}</p>
+                <p className="text-sm leading-6 text-(--muted)">{category.description}</p>
               </div>
               <p className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-sky-200">
                 {getProvidersByCategory(category.id).length} providers
@@ -375,13 +375,13 @@ export default function Home() {
   return (
     <main className="min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-[1400px] space-y-6">
-        <section className="rounded-[2rem] border border-[var(--panel-border)] bg-[var(--panel)] p-6 shadow-[0_26px_90px_rgba(2,10,28,0.38)] backdrop-blur xl:p-8">
+        <section className="rounded-4xl border border-(--panel-border) bg-(--panel) p-6 shadow-[0_26px_90px_rgba(2,10,28,0.38)] backdrop-blur xl:p-8">
           <PageHeader lastUpdated={lastUpdated} />
 
           <div className="mt-6 flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <label className="relative block w-full xl:max-w-2xl">
               <Search
-                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[var(--muted)]/70"
+                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-(--muted)/70"
                 aria-hidden="true"
               />
               <input
@@ -391,7 +391,7 @@ export default function Home() {
                   setQuery(event.target.value);
                 }}
                 placeholder="Search providers, statuses, ids, or summaries"
-                className="w-full rounded-full border border-[var(--panel-border)] bg-[var(--toolbar)] py-3 pl-12 pr-12 text-sm text-white outline-none transition placeholder:text-[var(--muted)]/40 focus:border-[var(--focus-ring)] focus:ring-2 focus:ring-[var(--focus-ring)]/20"
+                className="w-full rounded-full border border-(--panel-border) bg-(--toolbar) py-3 pl-12 pr-12 text-sm text-white outline-none transition placeholder:text-(--muted)/40 focus:border-(--focus-ring) focus:ring-2 focus:ring-(--focus-ring)/20"
                 aria-label="Search providers"
               />
               {query && (
@@ -400,7 +400,7 @@ export default function Home() {
                   onClick={() => {
                     setQuery('');
                   }}
-                  className="absolute right-3 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-[var(--muted)] transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+                  className="absolute right-3 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-(--muted) transition hover:bg-white/5 hover:text-white focus:outline-none focus:ring-2 focus:ring-(--focus-ring)"
                   aria-label="Clear search"
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
@@ -415,7 +415,7 @@ export default function Home() {
                   setIsServiceFilterOpen((current) => !current);
                 }}
                 aria-expanded={isServiceFilterOpen}
-                className="inline-flex items-center gap-2 rounded-full border border-[var(--panel-border)] bg-[var(--toolbar)] px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-[var(--muted)] transition hover:border-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+                className="inline-flex items-center gap-2 rounded-full border border-(--panel-border) bg-(--toolbar) px-3 py-2 text-[11px] font-semibold uppercase tracking-[0.24em] text-(--muted) transition hover:border-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-(--focus-ring)"
               >
                 <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
                 Filter
@@ -440,10 +440,10 @@ export default function Home() {
                     onClick={() => {
                       setActiveCategory(filter.id);
                     }}
-                    className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${
+                    className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition focus:outline-none focus:ring-2 focus:ring-(--focus-ring) ${
                       isActive
                         ? 'border-sky-300/40 bg-sky-400/12 text-sky-200'
-                        : 'border-[var(--panel-border)] bg-[var(--toolbar)] text-[var(--muted)] hover:border-white/20 hover:text-white'
+                        : 'border-(--panel-border) bg-(--toolbar) text-(--muted) hover:border-white/20 hover:text-white'
                     }`}
                   >
                     {filter.label}
@@ -454,13 +454,13 @@ export default function Home() {
           </div>
 
           {isServiceFilterOpen && (
-            <section className="mt-5 rounded-[1.5rem] border border-[var(--panel-border)] bg-[var(--toolbar)]/70 p-4">
+            <section className="mt-5 rounded-3xl border border-(--panel-border) bg-(--toolbar)/70 p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div className="max-w-2xl">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-sky-200">
                     Service Scope
                   </p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                  <p className="mt-2 text-sm leading-6 text-(--muted)">
                     Choose one or more providers to narrow the board. Leaving everything
                     unselected keeps the full dashboard visible, and your filter choices persist in
                     a browser cookie.
@@ -473,10 +473,10 @@ export default function Home() {
                     onClick={() => {
                       setSelectedProviderIds([]);
                     }}
-                    className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${
+                    className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] transition focus:outline-none focus:ring-2 focus:ring-(--focus-ring) ${
                       selectedProviderIds.length === 0
                         ? 'border-sky-300/40 bg-sky-400/12 text-sky-200'
-                        : 'border-[var(--panel-border)] bg-[var(--panel)] text-[var(--muted)] hover:border-white/20 hover:text-white'
+                        : 'border-(--panel-border) bg-(--panel) text-(--muted) hover:border-white/20 hover:text-white'
                     }`}
                   >
                     All Services
@@ -487,7 +487,7 @@ export default function Home() {
                       onClick={() => {
                         setSelectedProviderIds([]);
                       }}
-                      className="rounded-full border border-[var(--panel-border)] bg-[var(--panel)] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-[var(--muted)] transition hover:border-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+                      className="rounded-full border border-(--panel-border) bg-(--panel) px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-(--muted) transition hover:border-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-(--focus-ring)"
                     >
                       Clear Selection
                     </button>
@@ -502,7 +502,7 @@ export default function Home() {
                       <h2 className="text-sm font-semibold uppercase tracking-[0.24em] text-white/90">
                         {group.label}
                       </h2>
-                      <p className="text-[11px] uppercase tracking-[0.22em] text-[var(--muted)]">
+                      <p className="text-[11px] uppercase tracking-[0.22em] text-(--muted)">
                         {group.providers.length} providers
                       </p>
                     </div>
@@ -518,10 +518,10 @@ export default function Home() {
                             onClick={() => {
                               toggleProviderSelection(provider.id);
                             }}
-                            className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${
+                            className={`rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] transition focus:outline-none focus:ring-2 focus:ring-(--focus-ring) ${
                               isSelected
                                 ? 'border-sky-300/40 bg-sky-400/12 text-sky-100'
-                                : 'border-[var(--panel-border)] bg-[var(--panel)] text-[var(--muted)] hover:border-white/20 hover:text-white'
+                                : 'border-(--panel-border) bg-(--panel) text-(--muted) hover:border-white/20 hover:text-white'
                             }`}
                           >
                             {provider.name}
@@ -542,7 +542,7 @@ export default function Home() {
                 setIsServiceFilterOpen((current) => !current);
               }}
               aria-expanded={isServiceFilterOpen}
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--panel-border)] bg-[var(--toolbar)] px-4 py-2 text-sm text-[var(--subtle)] transition hover:border-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+              className="inline-flex items-center gap-2 rounded-full border border-(--panel-border) bg-(--toolbar) px-4 py-2 text-sm text-(--subtle) transition hover:border-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-(--focus-ring)"
             >
               <LayoutList className="h-4 w-4 text-sky-300" aria-hidden="true" />
               Showing {filteredStatuses.length} of {providerScopeCount}
@@ -557,7 +557,7 @@ export default function Home() {
               onClick={() => {
                 toggleStatusFilter('operational');
               }}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-(--focus-ring) ${
                 statusFilter === 'operational'
                   ? 'border-emerald-300/40 bg-emerald-400/18 text-emerald-100'
                   : 'border-emerald-400/18 bg-emerald-400/10 text-emerald-200 hover:border-emerald-300/35 hover:text-emerald-100'
@@ -571,7 +571,7 @@ export default function Home() {
               onClick={() => {
                 toggleStatusFilter('nonOperational');
               }}
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)] ${
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition focus:outline-none focus:ring-2 focus:ring-(--focus-ring) ${
                 statusFilter === 'nonOperational'
                   ? 'border-amber-300/40 bg-amber-400/18 text-amber-100'
                   : 'border-amber-400/18 bg-amber-400/10 text-amber-200 hover:border-amber-300/35 hover:text-amber-100'
@@ -594,13 +594,13 @@ export default function Home() {
         </section>
 
         {error && (
-          <div className="rounded-[1.5rem] border border-[var(--error-border)] bg-[var(--error-bg)] p-4">
-            <p className="text-sm text-[var(--error-text)]">{error}</p>
+          <div className="rounded-3xl border border-(--error-border) bg-(--error-bg) p-4">
+            <p className="text-sm text-(--error-text)">{error}</p>
             <button
               onClick={() => {
                 void fetchStatuses();
               }}
-              className="mt-3 inline-flex items-center rounded-full border border-[var(--error-border)] px-4 py-2 text-sm font-medium text-[var(--error-text)] transition hover:border-[var(--focus-ring)] hover:text-white focus:outline-none focus:ring-2 focus:ring-[var(--focus-ring)]"
+              className="mt-3 inline-flex items-center rounded-full border border-(--error-border) px-4 py-2 text-sm font-medium text-(--error-text) transition hover:border-(--focus-ring) hover:text-white focus:outline-none focus:ring-2 focus:ring-(--focus-ring)"
             >
               Retry
             </button>
@@ -612,11 +612,11 @@ export default function Home() {
         ) : filteredStatuses.length === 0 && pendingRelevantCategories.length > 0 ? (
           <LoadingList categories={pendingRelevantCategories} />
         ) : filteredStatuses.length === 0 ? (
-          <section className="rounded-[1.75rem] border border-[var(--panel-border)] bg-[var(--list-surface)] p-8 text-center shadow-[0_26px_90px_rgba(2,10,28,0.36)]">
+          <section className="rounded-[1.75rem] border border-(--panel-border) bg-(--list-surface) p-8 text-center shadow-[0_26px_90px_rgba(2,10,28,0.36)]">
             <p className="font-headline text-2xl font-semibold tracking-[-0.04em] text-white">
               No providers matched that filter
             </p>
-            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[var(--muted)]">
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-(--muted)">
               Try a different provider name, status keyword, or category filter. Searches match
               provider ids, names, summaries, and current status labels.
             </p>

@@ -1,4 +1,4 @@
-import { ProviderStatus, NormalizedStatus, ProviderConfig } from './types';
+import type { ProviderStatus, NormalizedStatus, ProviderConfig } from './types.ts';
 
 const STATUS_PRIORITY: Record<ProviderStatus, number> = {
   unknown: 0,

@@ -111,6 +111,11 @@ function readDashboardFilterPreferences(): DashboardFilterPreferences | null {
   try {
     const decoded = decodeURIComponent(rawCookie.slice(DASHBOARD_FILTERS_COOKIE.length + 1));
     const parsed = JSON.parse(decoded) as Partial<DashboardFilterPreferences>;
+
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
+
     const selectedProviderIds = Array.isArray(parsed.selectedProviderIds)
       ? parsed.selectedProviderIds.filter(
           (value): value is string => typeof value === 'string' && VALID_PROVIDER_IDS.has(value)

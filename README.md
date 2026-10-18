@@ -1,34 +1,32 @@
 # Cloud Status Dashboard
 
-A dashboard that pulls together status updates from 27 cloud providers into one place. Everything shows up on a single dashboard, refreshed every 5 minutes.
+[![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker&logoColor=white)](https://hub.docker.com/repository/docker/dmitryporotnikov/status-dashboard)
+[![Providers](https://img.shields.io/badge/providers-27-blue)](lib/status/providers)
+[![Docker build](https://github.com/dmitryporotnikov/cloud-status-dashboard/actions/workflows/docker-publish.yml/badge.svg)](https://github.com/dmitryporotnikov/cloud-status-dashboard/actions/workflows/docker-publish.yml)
 
-The app fetches provider status server-side, normalizes different data formats into a shared model, and renders them in a clean responsive UI. Browsers only ever call your own deployment, never provider endpoints directly (to do not be throttled/banned from the provider api for overuse).
+One page that answers "is anything broken right now" across 27 providers. The server fetches their status pages every five minutes, normalizes the different formats into one model, and renders the result as two groups of cards, infrastructure and SaaS.
 
-## Supported Providers
-
-IAAS: AWS, Microsoft Azure, Google Cloud Platform, IBM Cloud, Oracle Cloud, Alibaba Cloud, DigitalOcean, Cloudflare, OVHcloud, Vultr, Linode, Akamai, Vercel, Heroku, MongoDB Cloud, UpCloud
-
-SAAS: GitHub, GitLab, Atlassian, Datadog, Twilio, Slack, Splunk Cloud Platform, Salesforce, Claude, Gemini, OpenAI
-
-## Screenshot
-
-The dashboard displays providers in two sections (IAAS and SAAS) with color-coded status cards.
-
+Your browser only talks to your own deployment. Provider requests happen server-side, so a busy team doesn't burn through someone else's rate limit.
 
 ![Dashboard](screenshot.jpg)
 
+## Providers
 
-## Getting Started
+Infrastructure: AWS, Microsoft Azure, Google Cloud Platform, IBM Cloud, Oracle Cloud, Alibaba Cloud, DigitalOcean, Cloudflare, OVHcloud, Vultr, Linode, Akamai, Vercel, Heroku, MongoDB Cloud, UpCloud.
 
-Run the development server:
+SaaS: GitHub, GitLab, Atlassian, Datadog, Twilio, Slack, Splunk Cloud Platform, Salesforce, Claude, Gemini, OpenAI.
+
+## Run it locally
 
 ```bash
+npm install
 npm run dev
 ```
 
-Open http://localhost:3000 in your browser.
+Open http://localhost:3000.
 
-## Production Build
+## Production build
 
 ```bash
 npm run build
@@ -37,55 +35,18 @@ npm run start
 
 ## Docker
 
-### Ready image
+The image is on Docker Hub as `dmitryporotnikov/status-dashboard`.
 
-https://hub.docker.com/repository/docker/dmitryporotnikov/status-dashboard
+```bash
+docker pull dmitryporotnikov/status-dashboard
+docker run --rm -p 3000:3000 --name status-dashboard dmitryporotnikov/status-dashboard
+```
 
-### Build yourself
-
-The project includes a multi-stage Dockerfile and standalone Next.js config.
-
-Build the image:
+To build it yourself, the repo has a multi-stage Dockerfile and a standalone Next.js config:
 
 ```bash
 docker build -t status-dashboard:latest .
+docker run --rm -p 3000:3000 status-dashboard:latest
 ```
 
-Run it:
-
-```bash
-docker run --rm -p 3000:3000 --name status-dashboard status-dashboard:latest
-```
-
-Then open http://localhost:3000.
-
-## Push to Docker Hub
-
-1. Create a Docker Hub repository named `YOUR_DOCKERHUB_USERNAME/status-dashboard`.
-
-2. Log in:
-
-```bash
-docker login
-```
-
-3. Build and tag:
-
-```bash
-docker build -t YOUR_DOCKERHUB_USERNAME/status-dashboard:latest .
-docker tag YOUR_DOCKERHUB_USERNAME/status-dashboard:latest YOUR_DOCKERHUB_USERNAME/status-dashboard:0.1.0
-```
-
-4. Push:
-
-```bash
-docker push YOUR_DOCKERHUB_USERNAME/status-dashboard:latest
-docker push YOUR_DOCKERHUB_USERNAME/status-dashboard:0.1.0
-```
-
-5. Pull and run anywhere:
-
-```bash
-docker pull YOUR_DOCKERHUB_USERNAME/status-dashboard:latest
-docker run --rm -p 3000:3000 YOUR_DOCKERHUB_USERNAME/status-dashboard:latest
-```
+Then open http://localhost:3000. Pushes to `main` rebuild the published image through the workflow above.
